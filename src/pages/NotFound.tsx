@@ -1,22 +1,26 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
 
 const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <div className="flex-1 flex items-center justify-center bg-muted">
+        <div className="text-center px-6">
+          <AlertCircle className="h-20 w-20 text-accent mx-auto mb-6" />
+          <h1 className="text-6xl font-black mb-4 text-foreground">404</h1>
+          <p className="text-2xl mb-8 text-muted-foreground">Oops! Page not found</p>
+          <Link to="/">
+            <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+              Return to Home
+            </Button>
+          </Link>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };
