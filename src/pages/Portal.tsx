@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -6,20 +6,108 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, FileText, TrendingUp, Truck } from "lucide-react";
+import { BarChart3, FileText, TrendingUp, Truck, Settings } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { isAdmin } from "@/lib/supabase";
+import { NewsManager } from "@/components/admin/NewsManager";
+import { ServicesManager } from "@/components/admin/ServicesManager";
+import { TeamManager } from "@/components/admin/TeamManager";
+import { JobsManager } from "@/components/admin/JobsManager";
+import { ContactManager } from "@/components/admin/ContactManager";
+import { SiteSettingsManager } from "@/components/admin/SiteSettingsManager";
 
 const Portal = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+      if (session) {
+        checkAdminStatus(session.user.id);
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+      if (session) {
+        checkAdminStatus(session.user.id);
+      } else {
+        setIsAdminUser(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkAdminStatus = async (userId: string) => {
+    const adminStatus = await isAdmin(userId);
+    setIsAdminUser(adminStatus);
+  };
+
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple demo login - in production this would call an API
-    if (email && password) {
-      setIsLoggedIn(true);
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/portal`,
+          },
+        });
+
+        if (error) throw error;
+        toast({ title: "Account created! Please check your email to verify." });
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+        toast({ title: "Logged in successfully!" });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({ title: "Logged out successfully" });
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center">
+          <p>Loading...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
@@ -29,11 +117,17 @@ const Portal = () => {
           <div className="container mx-auto max-w-md">
             <Card className="shadow-2xl">
               <CardHeader className="text-center">
-                <CardTitle className="text-3xl font-black text-primary">Client Portal</CardTitle>
-                <CardDescription>Access your fuel management dashboard</CardDescription>
+                <CardTitle className="text-3xl font-black text-primary">
+                  {isSignUp ? "Create Account" : "Client Portal"}
+                </CardTitle>
+                <CardDescription>
+                  {isSignUp
+                    ? "Sign up to access your dashboard"
+                    : "Access your fuel management dashboard"}
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleAuth} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -56,12 +150,19 @@ const Portal = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full">
-                    Sign In
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
                   </Button>
-                  <p className="text-center text-sm text-muted-foreground">
-                    Demo: Use any email and password to login
-                  </p>
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="w-full"
+                    onClick={() => setIsSignUp(!isSignUp)}
+                  >
+                    {isSignUp
+                      ? "Already have an account? Sign In"
+                      : "Don't have an account? Sign Up"}
+                  </Button>
                 </form>
               </CardContent>
             </Card>
@@ -79,13 +180,59 @@ const Portal = () => {
         <div className="container mx-auto px-6">
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-black text-primary mb-2">Welcome Back!</h1>
-              <p className="text-muted-foreground">Manage your fuel operations and view insights</p>
+              <h1 className="text-4xl font-black text-primary mb-2">
+                {isAdminUser ? "Admin Dashboard" : "Welcome Back!"}
+              </h1>
+              <p className="text-muted-foreground">
+                {isAdminUser
+                  ? "Manage site content and user data"
+                  : "Manage your fuel operations and view insights"}
+              </p>
             </div>
-            <Button variant="outline" onClick={() => setIsLoggedIn(false)}>
+            <Button variant="outline" onClick={handleLogout}>
               Logout
             </Button>
           </div>
+
+          {isAdminUser ? (
+            // Admin Panel
+            <Tabs defaultValue="news" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="news">News</TabsTrigger>
+                <TabsTrigger value="services">Services</TabsTrigger>
+                <TabsTrigger value="team">Team</TabsTrigger>
+                <TabsTrigger value="jobs">Jobs</TabsTrigger>
+                <TabsTrigger value="contact">Contact</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="news">
+                <NewsManager />
+              </TabsContent>
+
+              <TabsContent value="services">
+                <ServicesManager />
+              </TabsContent>
+
+              <TabsContent value="team">
+                <TeamManager />
+              </TabsContent>
+
+              <TabsContent value="jobs">
+                <JobsManager />
+              </TabsContent>
+
+              <TabsContent value="contact">
+                <ContactManager />
+              </TabsContent>
+
+              <TabsContent value="settings">
+                <SiteSettingsManager />
+              </TabsContent>
+            </Tabs>
+          ) : (
+            // Regular User Dashboard
+            <>
 
           {/* Dashboard Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -231,6 +378,8 @@ const Portal = () => {
               </Card>
             </TabsContent>
           </Tabs>
+            </>
+          )}
         </div>
       </div>
       <Footer />
