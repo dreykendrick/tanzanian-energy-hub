@@ -1,10 +1,71 @@
 import { Hero } from "@/components/Hero";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Truck, Award, MapPin, DollarSign, Fuel, Flame, Package, Handshake, HardHat, Factory, Gem, TruckIcon, Landmark, Tractor } from "lucide-react";
+import { Truck, Award, MapPin, DollarSign, Fuel, Flame, Package, Handshake, HardHat, Factory, Gem, TruckIcon, Landmark, Tractor, Users, Briefcase, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 const Home = () => {
+  // Fetch dynamic data
+  const { data: services = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index', { ascending: true });
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ['team_members'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index', { ascending: true });
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: news = [] } = useQuery({
+    queryKey: ['news'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('is_published', true)
+        .order('published_date', { ascending: false })
+        .limit(3);
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: jobs = [] } = useQuery({
+    queryKey: ['job_listings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('job_listings')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const highlights = [
     {
       icon: <Truck className="h-12 w-12 text-accent" />,
@@ -28,38 +89,6 @@ const Home = () => {
     }
   ];
 
-  const services = [
-    {
-      icon: <Fuel className="h-10 w-10 text-accent" />,
-      title: "Diesel Bulk Supply",
-      description: "High-quality diesel for construction, mining, and industrial operations. Minimum order 5,000 liters."
-    },
-    {
-      icon: <Flame className="h-10 w-10 text-accent" />,
-      title: "Petrol Bulk Supply",
-      description: "Premium petrol for transport fleets and commercial vehicles. Flexible delivery schedules."
-    },
-    {
-      icon: <Truck className="h-10 w-10 text-accent" />,
-      title: "Fuel Logistics",
-      description: "End-to-end fuel logistics with GPS-tracked tankers and real-time delivery monitoring."
-    },
-    {
-      icon: <Package className="h-10 w-10 text-accent" />,
-      title: "Industrial Lubricants",
-      description: "Complete range of industrial lubricants and engine oils for heavy machinery."
-    },
-    {
-      icon: <Factory className="h-10 w-10 text-accent" />,
-      title: "Fuel Storage Solutions",
-      description: "Installation and maintenance of on-site fuel storage tanks with safety compliance."
-    },
-    {
-      icon: <Handshake className="h-10 w-10 text-accent" />,
-      title: "Contract Supply",
-      description: "Long-term fuel supply contracts with guaranteed pricing and priority delivery."
-    }
-  ];
 
   const industries = [
     { icon: <HardHat className="h-12 w-12" />, title: "Construction" },
@@ -143,10 +172,9 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-foreground">Our Services</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <Card key={index} className="hover-scale shadow-lg border-l-4 border-l-accent">
+            {services.map((service) => (
+              <Card key={service.id} className="hover-scale shadow-lg border-l-4 border-l-accent">
                 <CardHeader>
-                  <div className="mb-4">{service.icon}</div>
                   <CardTitle className="text-xl">{service.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -157,6 +185,107 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Meet Our Team */}
+      {teamMembers.length > 0 && (
+        <section className="py-20 bg-muted">
+          <div className="container mx-auto px-6">
+            <h2 className="text-4xl font-bold text-center mb-12 text-foreground">Meet Our Team</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {teamMembers.map((member) => (
+                <Card key={member.id} className="hover-lift shadow-lg text-center">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-center mb-4">
+                      <Avatar className="h-24 w-24 border-4 border-accent">
+                        <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
+                        <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <CardTitle className="text-xl">{member.name}</CardTitle>
+                    <CardDescription className="text-accent font-semibold">{member.role}</CardDescription>
+                  </CardHeader>
+                  {member.bio && (
+                    <CardContent>
+                      <p className="text-muted-foreground">{member.bio}</p>
+                    </CardContent>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* News & Updates */}
+      {news.length > 0 && (
+        <section className="py-20 bg-background">
+          <div className="container mx-auto px-6">
+            <h2 className="text-4xl font-bold text-center mb-12 text-foreground">Latest News</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {news.map((article) => (
+                <Card key={article.id} className="hover-scale shadow-lg border-t-4 border-t-accent">
+                  <CardHeader>
+                    {article.published_date && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <Calendar className="h-4 w-4" />
+                        {format(new Date(article.published_date), 'MMM dd, yyyy')}
+                      </div>
+                    )}
+                    <CardTitle className="text-xl line-clamp-2">{article.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground line-clamp-3">{article.content}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Join Our Team */}
+      {jobs.length > 0 && (
+        <section className="py-20 bg-muted">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-12">
+              <Briefcase className="h-12 w-12 text-accent mx-auto mb-4" />
+              <h2 className="text-4xl font-bold mb-4 text-foreground">Join Our Team</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Be part of Tanzania's leading fuel supply company. We're always looking for talented individuals to join our growing team.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {jobs.map((job) => (
+                <Card key={job.id} className="hover-lift shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-xl">{job.title}</CardTitle>
+                    <CardDescription className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      {job.location}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      <span className="font-semibold">Department:</span> {job.department}
+                    </p>
+                    <p className="text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/contact">Apply Now</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Button size="lg" asChild>
+                <Link to="/contact">View All Positions</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Industries */}
       <section className="py-20 bg-muted">
