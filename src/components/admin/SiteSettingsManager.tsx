@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Upload } from "lucide-react";
 
 interface SiteSettings {
   id: string;
@@ -18,6 +19,7 @@ export const SiteSettingsManager = () => {
     logo_url: "",
     company_name: "",
   });
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,6 +44,35 @@ export const SiteSettingsManager = () => {
         logo_url: data.logo_url || "",
         company_name: data.company_name,
       });
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logos/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('company-logos')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-logos')
+        .getPublicUrl(fileName);
+
+      setFormData({ ...formData, logo_url: publicUrl });
+      toast({ title: "Logo uploaded successfully" });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({ title: "Error uploading logo", variant: "destructive" });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -79,12 +110,25 @@ export const SiteSettingsManager = () => {
             />
           </div>
           <div>
-            <Label>Logo URL</Label>
-            <Input
-              value={formData.logo_url}
-              onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-              placeholder="https://..."
-            />
+            <Label>Company Logo</Label>
+            <div className="flex items-center gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('logo-upload')?.click()}
+                disabled={uploading}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {uploading ? "Uploading..." : "Upload Logo"}
+              </Button>
+              <input
+                id="logo-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+            </div>
             {formData.logo_url && (
               <img src={formData.logo_url} alt="Logo preview" className="mt-2 h-16 object-contain" />
             )}
