@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Edit, Plus } from "lucide-react";
+import { Trash2, Edit, Plus, Upload } from "lucide-react";
 
 interface TeamMember {
   id: string;
@@ -21,6 +21,7 @@ export const TeamManager = () => {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     role: "",
@@ -45,6 +46,35 @@ export const TeamManager = () => {
       return;
     }
     setTeam(data || []);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatars/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('team-avatars')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('team-avatars')
+        .getPublicUrl(fileName);
+
+      setFormData({ ...formData, avatar_url: publicUrl });
+      toast({ title: "Avatar uploaded successfully" });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({ title: "Error uploading avatar", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -146,12 +176,28 @@ export const TeamManager = () => {
               />
             </div>
             <div>
-              <Label>Avatar URL</Label>
-              <Input
-                value={formData.avatar_url}
-                onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                placeholder="https://..."
-              />
+              <Label>Avatar Image</Label>
+              <div className="flex items-center gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
+                  disabled={uploading}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {uploading ? "Uploading..." : "Upload Avatar"}
+                </Button>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+              </div>
+              {formData.avatar_url && (
+                <img src={formData.avatar_url} alt="Avatar preview" className="mt-2 h-16 w-16 rounded-full object-cover" />
+              )}
             </div>
             <div className="flex items-center gap-2">
               <input
