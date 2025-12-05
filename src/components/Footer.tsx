@@ -8,7 +8,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold text-accent mb-4">Tanzania Energies</h3>
+            <h3 className="text-xl font-bold text-accent mb-4">Tanzania Energy</h3>
             <p className="text-sm opacity-80 mb-4">
               Leading bulk fuel supplier powering Tanzania's industrial growth since 2015.
             </p>
@@ -57,7 +57,7 @@ export const Footer = () => {
         </div>
 
         <div className="border-t border-primary-foreground/10 pt-8 text-center text-sm opacity-70">
-          <p>&copy; {new Date().getFullYear()} Tanzania Energies. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Tanzania Energy. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -26,7 +26,7 @@ export const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <h1 className="text-2xl md:text-3xl font-black text-primary-foreground tracking-tight">
-              Tanzania <span className="text-accent">Energies</span>
+              Tanzania <span className="text-accent">Energy</span>
             </h1>
           </Link>
 

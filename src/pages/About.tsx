@@ -28,7 +28,7 @@ const About = () => {
   ];
 
   const timeline = [
-    { year: "2015", title: "Foundation", description: "Tanzania Energies established with a single depot in Dar es Salaam, serving 15 clients." },
+    { year: "2015", title: "Foundation", description: "Tanzania Energy established with a single depot in Dar es Salaam, serving 15 clients." },
     { year: "2017", title: "Expansion", description: "Opened regional depots in Mwanza and Arusha. Fleet expanded to 25 tankers." },
     { year: "2019", title: "ISO Certification", description: "Achieved ISO 9001:2015 certification for quality management systems." },
     { year: "2021", title: "Digital Transformation", description: "Launched client portal and GPS fleet tracking system." },
@@ -49,7 +49,7 @@ const About = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-20 bg-gradient-to-br from-primary to-energy-blue text-primary-foreground">
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl font-black mb-6 animate-fade-in-up">About Tanzania Energies</h1>
+          <h1 className="text-5xl font-black mb-6 animate-fade-in-up">About Tanzania Energy</h1>
           <p className="text-xl max-w-3xl mx-auto opacity-90">
             Leading bulk fuel supplier dedicated to powering Tanzania's industrial growth since 2015.
           </p>
