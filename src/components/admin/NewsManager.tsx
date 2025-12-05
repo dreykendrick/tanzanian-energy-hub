@@ -38,7 +38,8 @@ export const NewsManager = () => {
       .order("published_date", { ascending: false });
 
     if (error) {
-      toast({ title: "Error fetching news", variant: "destructive" });
+      console.error("News fetch error:", error);
+      toast({ title: "Error fetching news", description: error.message, variant: "destructive" });
       return;
     }
     setNews(data || []);
