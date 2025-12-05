@@ -38,6 +38,39 @@ export type Database = {
         }
         Relationships: []
       }
+      fuel_prices: {
+        Row: {
+          created_at: string | null
+          effective_date: string
+          fuel_type: string
+          id: string
+          price_per_liter: number
+          region: string | null
+          source: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          effective_date?: string
+          fuel_type: string
+          id?: string
+          price_per_liter: number
+          region?: string | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          effective_date?: string
+          fuel_type?: string
+          id?: string
+          price_per_liter?: number
+          region?: string | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       job_listings: {
         Row: {
           created_at: string | null

@@ -16,6 +16,7 @@ import { TeamManager } from "@/components/admin/TeamManager";
 import { JobsManager } from "@/components/admin/JobsManager";
 import { ContactManager } from "@/components/admin/ContactManager";
 import { SiteSettingsManager } from "@/components/admin/SiteSettingsManager";
+import { FuelPricesManager } from "@/components/admin/FuelPricesManager";
 
 const Portal = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -196,8 +197,9 @@ const Portal = () => {
 
           {isAdminUser ? (
             // Admin Panel
-            <Tabs defaultValue="news" className="space-y-4">
+            <Tabs defaultValue="fuel-prices" className="space-y-4">
               <TabsList>
+                <TabsTrigger value="fuel-prices">Fuel Prices</TabsTrigger>
                 <TabsTrigger value="news">News</TabsTrigger>
                 <TabsTrigger value="services">Services</TabsTrigger>
                 <TabsTrigger value="team">Team</TabsTrigger>
@@ -205,6 +207,10 @@ const Portal = () => {
                 <TabsTrigger value="contact">Contact</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="fuel-prices">
+                <FuelPricesManager />
+              </TabsContent>
 
               <TabsContent value="news">
                 <NewsManager />

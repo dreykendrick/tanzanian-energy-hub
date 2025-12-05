@@ -1,7 +1,8 @@
 import { Hero } from "@/components/Hero";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Truck, Award, MapPin, DollarSign, Fuel, Flame, Package, Handshake, HardHat, Factory, Gem, TruckIcon, Landmark, Tractor, Users, Briefcase, Calendar } from "lucide-react";
+import { FuelPrices } from "@/components/FuelPrices";
+import { Truck, Award, MapPin, DollarSign, HardHat, Factory, Gem, TruckIcon, Landmark, Tractor, Briefcase, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -140,32 +141,7 @@ const Home = () => {
       </section>
 
       {/* Fuel Prices */}
-      <section className="py-20 bg-muted">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-12 text-foreground">Today's Fuel Prices</h2>
-          <div className="flex flex-wrap justify-center gap-8">
-            <Card className="bg-gradient-to-br from-primary to-energy-blue text-primary-foreground min-w-[280px] shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-lg opacity-90">Diesel</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-5xl font-black text-accent mb-2">2,850</div>
-                <p className="text-sm opacity-80">TZS/Liter</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-primary to-energy-blue text-primary-foreground min-w-[280px] shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-lg opacity-90">Petrol</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-5xl font-black text-accent mb-2">3,050</div>
-                <p className="text-sm opacity-80">TZS/Liter</p>
-              </CardContent>
-            </Card>
-          </div>
-          <p className="mt-8 text-muted-foreground">*Prices updated daily. Bulk discounts available.</p>
-        </div>
-      </section>
+      <FuelPrices />
 
       {/* Services */}
       <section className="py-20 bg-background">
