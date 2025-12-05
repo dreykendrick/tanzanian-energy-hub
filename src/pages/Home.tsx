@@ -101,12 +101,12 @@ const Home = () => {
 
   const testimonials = [
     {
-      quote: "Tanzania Energies has been our reliable fuel partner for 3 years. Their delivery is always on time, and the quality is exceptional. Highly recommended for any industrial operation.",
+      quote: "Tanzania Energy has been our reliable fuel partner for 3 years. Their delivery is always on time, and the quality is exceptional. Highly recommended for any industrial operation.",
       author: "John Mwamba",
       role: "Operations Director, BuildTech Construction"
     },
     {
-      quote: "Switching to Tanzania Energies reduced our fuel costs by 15% while improving delivery reliability. Their customer service team is responsive and professional.",
+      quote: "Switching to Tanzania Energy reduced our fuel costs by 15% while improving delivery reliability. Their customer service team is responsive and professional.",
       author: "Sarah Kimaro",
       role: "Fleet Manager, TransLogistics Ltd"
     }
@@ -121,7 +121,7 @@ const Home = () => {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-foreground">
-            Why Choose Tanzania Energies?
+            Why Choose Tanzania Energy?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {highlights.map((highlight, index) => (
